@@ -11,6 +11,8 @@ interface Record {
 
 const RecordList: React.FC = () => {
     const [records, setRecords] = useState<Record[]>([]);
+    const [editedRecords, setEditedRecords] = useState<Record[]>([]);
+    const [editableIndexes, setEditableIndexes] = useState<number[]>([]);
     const [selectedServiceType, setSelectedServiceType] = useState<string>('');
 
     useEffect(() => {
@@ -19,15 +21,41 @@ const RecordList: React.FC = () => {
             if (selectedServiceType) {
                 url += `?serviceType=${selectedServiceType}`;
             }
-            const response = await axios.get(url);
+            const response = await axios.get<Record[]>(url);
             setRecords(response.data);
+            setEditedRecords(response.data.map(record => ({ ...record })));
+            setEditableIndexes([]);
         };
         fetchRecords();
     }, [selectedServiceType]);
 
+    const handleEdit = (index: number) => {
+        setEditableIndexes([...editableIndexes, index]);
+    };
+
+    const handleEditChange = (index: number, field: keyof Record, value: string) => {
+        const newEditedRecords = [...editedRecords];
+        newEditedRecords[index][field] = value;
+        setEditedRecords(newEditedRecords);
+    };
+
+    const handleSave = async (index: number) => {
+        try {
+            await axios.put(`/api/records/${editedRecords[index].id}`, editedRecords[index]);
+            const response = await axios.get<Record[]>('/api/records');
+            setRecords(response.data);
+            setEditedRecords(response.data.map(record => ({ ...record })));
+            setEditableIndexes(editableIndexes.filter(idx => idx !== index));
+        } catch (error) {
+            console.error('Error updating record:', error);
+        }
+    };
+
     const handleServiceTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         setSelectedServiceType(e.target.value);
     };
+
+    const isEditable = (index: number) => editableIndexes.includes(index);
 
     return (
         <div>
@@ -53,16 +81,44 @@ const RecordList: React.FC = () => {
                     <th>Title</th>
                     <th>Created At</th>
                     <th>Updated At</th>
+                    <th>Action</th>
                 </tr>
                 </thead>
                 <tbody>
-                {records.map(record => (
+                {records.map((record, index) => (
                     <tr key={record.id}>
                         <td>{record.id}</td>
-                        <td>{record.serviceType}</td>
-                        <td>{record.title}</td>
+                        <td>
+                            {isEditable(index) ? (
+                                <input
+                                    type="text"
+                                    value={editedRecords[index].serviceType}
+                                    onChange={(e) => handleEditChange(index, 'serviceType', e.target.value)}
+                                />
+                            ) : (
+                                <span>{record.serviceType}</span>
+                            )}
+                        </td>
+                        <td>
+                            {isEditable(index) ? (
+                                <input
+                                    type="text"
+                                    value={editedRecords[index].title}
+                                    onChange={(e) => handleEditChange(index, 'title', e.target.value)}
+                                />
+                            ) : (
+                                <span>{record.title}</span>
+                            )}
+                        </td>
                         <td>{record.createdAt}</td>
                         <td>{record.updatedAt}</td>
+                        <td>
+                            {isEditable(index) ? (
+                                <button onClick={() => handleSave(index)}>Save</button>
+                            ) : (
+                                <button onClick={() => handleEdit(index)}>Edit</button>
+                            )}
+                        </td>
                     </tr>
                 ))}
                 </tbody>
