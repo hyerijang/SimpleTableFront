@@ -11,18 +11,40 @@ interface Record {
 
 const RecordList: React.FC = () => {
     const [records, setRecords] = useState<Record[]>([]);
+    const [selectedServiceType, setSelectedServiceType] = useState<string>('');
 
     useEffect(() => {
         const fetchRecords = async () => {
-            const response = await axios.get('/api/records');
+            let url = '/api/records';
+            if (selectedServiceType) {
+                url += `?serviceType=${selectedServiceType}`;
+            }
+            const response = await axios.get(url);
             setRecords(response.data);
         };
         fetchRecords();
-    }, []);
+    }, [selectedServiceType]);
+
+    const handleServiceTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        setSelectedServiceType(e.target.value);
+    };
 
     return (
         <div>
             <h2>Records</h2>
+            <div>
+                <label htmlFor="serviceType">Service Type:</label>
+                <select
+                    id="serviceType"
+                    value={selectedServiceType}
+                    onChange={handleServiceTypeChange}
+                >
+                    <option value="">All</option>
+                    <option value="ACCOUNT">ACCOUNT</option>
+                    <option value="CREDIT">CREDIT</option>
+                    <option value="CARD">CARD</option>
+                </select>
+            </div>
             <table>
                 <thead>
                 <tr>
