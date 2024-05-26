@@ -7,6 +7,7 @@ interface Record {
     title: string;
     createdAt?: string;
     updatedAt?: string;
+    sortOrder?: number;
 }
 
 const RecordList: React.FC = () => {
@@ -34,8 +35,12 @@ const RecordList: React.FC = () => {
     };
 
     const handleEditChange = (index: number, field: keyof Record, value: string) => {
-        const newEditedRecords = [...editedRecords];
-        newEditedRecords[index][field] = value;
+        const newEditedRecords = editedRecords.map((record, idx) => {
+            if (idx === index) {
+                return { ...record, [field]: value };
+            }
+            return record;
+        });
         setEditedRecords(newEditedRecords);
     };
 
@@ -76,6 +81,7 @@ const RecordList: React.FC = () => {
             <table>
                 <thead>
                 <tr>
+                    <th>SortOrder</th>
                     <th>ID</th>
                     <th>Service Type</th>
                     <th>Title</th>
@@ -87,6 +93,17 @@ const RecordList: React.FC = () => {
                 <tbody>
                 {records.map((record, index) => (
                     <tr key={record.id}>
+                        <td>
+                            {isEditable(index) ? (
+                                <input
+                                    type="text"
+                                    value={editedRecords[index].sortOrder}
+                                    onChange={(e) => handleEditChange(index, 'sortOrder', e.target.value)}
+                                />
+                            ) : (
+                                <span>{record.sortOrder}</span>
+                            )}
+                        </td>
                         <td>{record.id}</td>
                         <td>
                             {isEditable(index) ? (
