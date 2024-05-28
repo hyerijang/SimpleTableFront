@@ -1,5 +1,13 @@
 import React, { useState } from "react";
-import { Table, Input, Form, Button, InputNumber, message } from "antd";
+import {
+  Table,
+  Input,
+  Form,
+  Button,
+  InputNumber,
+  message,
+  Popconfirm,
+} from "antd";
 import axios from "axios";
 
 interface DataType {
@@ -25,6 +33,11 @@ const EditableTable: React.FC = () => {
     };
     setDataSource([...dataSource, newData]);
     setCount(count + 1);
+  };
+
+  const handleDelete = (key: number) => {
+    const newDataSource = dataSource.filter((item) => item.key !== key);
+    setDataSource(newDataSource);
   };
 
   const handleSave = async () => {
@@ -87,6 +100,19 @@ const EditableTable: React.FC = () => {
           <InputNumber />
         </Form.Item>
       ),
+    },
+    {
+      title: "Action",
+      dataIndex: "action",
+      render: (_: any, record: DataType) =>
+        dataSource.length >= 1 ? (
+          <Popconfirm
+            title="Sure to delete?"
+            onConfirm={() => handleDelete(record.key)}
+          >
+            <Button>Delete</Button>
+          </Popconfirm>
+        ) : null,
     },
   ];
 
