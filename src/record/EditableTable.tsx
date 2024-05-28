@@ -8,6 +8,7 @@ import {
   message,
   Popconfirm,
   Select,
+  Tag, // Tag 추가
 } from "antd";
 import axios from "axios";
 
@@ -26,7 +27,11 @@ const EditableTable: React.FC = () => {
   const [count, setCount] = useState(0);
   const [orgOptions, setOrgOptions] = useState<
     { orgName: string; orgCode: string; srcServiceType: string }[]
-  >([]);
+  >([
+    { orgName: "신한은행", orgCode: "BANK1", srcServiceType: "BANK" },
+    { orgName: "국민은행", orgCode: "BANK2", srcServiceType: "BANK" },
+    { orgName: "신한카드", orgCode: "CARD1", srcServiceType: "CARD" },
+  ]);
 
   useEffect(() => {
     const fetchOrgData = async () => {
@@ -104,6 +109,31 @@ const EditableTable: React.FC = () => {
     }
     return Promise.resolve();
   };
+  const hashString = (str: string) => {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+      const char = str.charCodeAt(i);
+      hash = (hash << 5) - hash + char;
+      hash &= hash; // Convert to 32bit integer
+    }
+    return hash;
+  };
+
+  // srcServiceType 태그 색상
+  const getTagColor = (srcServiceType: string) => {
+    const colors = [
+      "blue",
+      "green",
+      "red",
+      "yellow",
+      "orange",
+      "purple",
+      "cyan",
+      "magenta",
+    ];
+    const index = Math.abs(hashString(srcServiceType)) % colors.length;
+    return colors[index];
+  };
 
   const columns = [
     {
@@ -149,7 +179,13 @@ const EditableTable: React.FC = () => {
           name={["table", index, "srcServiceType"]}
           initialValue={record.srcServiceType}
         >
-          <Input disabled />
+          <span>
+            {record.srcServiceType && (
+              <Tag color={getTagColor(record.srcServiceType)}>
+                {record.srcServiceType}
+              </Tag>
+            )}
+          </span>
         </Form.Item>
       ),
     },
