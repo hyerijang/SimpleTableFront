@@ -87,6 +87,24 @@ const EditableTable: React.FC = () => {
     form.setFieldsValue({ table: newDataSource });
   };
 
+  const validateSuggestionOrgId = (_: any, value: number) => {
+    if (value === null || value === undefined || value < 1) {
+      return Promise.reject(
+        new Error("SuggestionOrgId must be a positive integer")
+      );
+    }
+    return Promise.resolve();
+  };
+
+  const validateDisplayOrder = (_: any, value: number) => {
+    if (value === null || value === undefined || value < 0) {
+      return Promise.reject(
+        new Error("DisplayOrder must be a non-negative integer")
+      );
+    }
+    return Promise.resolve();
+  };
+
   const columns = [
     {
       title: "Org Name",
@@ -142,6 +160,7 @@ const EditableTable: React.FC = () => {
         <Form.Item
           name={["table", index, "suggestionOrgId"]}
           initialValue={record.suggestionOrgId}
+          rules={[{ validator: validateSuggestionOrgId }]}
         >
           <InputNumber />
         </Form.Item>
@@ -154,6 +173,7 @@ const EditableTable: React.FC = () => {
         <Form.Item
           name={["table", index, "displayOrder"]}
           initialValue={record.displayOrder}
+          rules={[{ validator: validateDisplayOrder }]}
         >
           <InputNumber />
         </Form.Item>
