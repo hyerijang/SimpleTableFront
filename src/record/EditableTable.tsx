@@ -124,16 +124,20 @@ const EditableTable: React.FC = () => {
         pagination={false}
         rowClassName={() => "editable-row"}
       />
-      <Button
-        onClick={handleAdd}
-        type="primary"
-        style={{ marginBottom: 16, marginTop: 16 }}
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          marginTop: 16,
+        }}
       >
-        Add a row
-      </Button>
-      <Button type="primary" htmlType="submit">
-        Submit
-      </Button>
+        <Button onClick={handleAdd} type="primary">
+          Add a row
+        </Button>
+        <Button type="primary" htmlType="submit">
+          Submit
+        </Button>
+      </div>
     </Form>
   );
 };
