@@ -24,14 +24,20 @@ const EditableTable: React.FC = () => {
   const [dataSource, setDataSource] = useState<DataType[]>([]);
   const [count, setCount] = useState(0);
   const [orgOptions, setOrgOptions] = useState<
-    { orgName: string; orgCode: string }[]
-  >([]);
+    { orgName: string; orgCode: string; srcServiceType: string }[]
+  >([
+    { orgName: "신한은행", orgCode: "BANK1", srcServiceType: "ACCOUNT" },
+    { orgName: "국민은행", orgCode: "BANK2", srcServiceType: "ACCOUNT" },
+    { orgName: "하나은행", orgCode: "BANK3", srcServiceType: "ACCOUNT" },
+    { orgName: "우리카드", orgCode: "WOORI_CARD", srcServiceType: "CARD" },
+    { orgName: "신한카드", orgCode: "SHINHAN_CARD", srcServiceType: "CARD" },
+    { orgName: "하나카드", orgCode: "HANA_CARD", srcServiceType: "CARD" },
+  ]);
 
   useEffect(() => {
-    // 외부 API에서 orgName과 orgCode 데이터를 가져오는 함수
     const fetchOrgData = async () => {
       try {
-        const response = await axios.get("/api/v1/org_data"); // 예제 API 엔드포인트
+        const response = await axios.get("/api/v1/org_data"); // 외부 API 엔드포인트
         setOrgOptions(response.data);
       } catch (error) {
         console.error("Failed to fetch org data:", error);
@@ -79,6 +85,7 @@ const EditableTable: React.FC = () => {
     if (selectedOrg) {
       newDataSource[index].orgName = selectedOrg.orgName;
       newDataSource[index].orgCode = selectedOrg.orgCode;
+      newDataSource[index].srcServiceType = selectedOrg.srcServiceType;
     }
     setDataSource(newDataSource);
     form.setFieldsValue({ table: newDataSource });
@@ -126,9 +133,9 @@ const EditableTable: React.FC = () => {
       render: (_: any, record: DataType, index: number) => (
         <Form.Item
           name={["table", index, "srcServiceType"]}
-          rules={[{ required: true, message: "Src Service Type is required" }]}
+          initialValue={record.srcServiceType}
         >
-          <Input />
+          <Input disabled />
         </Form.Item>
       ),
     },
