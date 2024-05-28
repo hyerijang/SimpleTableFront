@@ -16,6 +16,7 @@ interface DataType {
   orgName: string;
   orgCode: string;
   srcServiceType: string;
+  suggestionOrgId: number | null; // suggestionOrgId 컬럼 추가
   displayOrder: number | null;
 }
 
@@ -25,14 +26,7 @@ const EditableTable: React.FC = () => {
   const [count, setCount] = useState(0);
   const [orgOptions, setOrgOptions] = useState<
     { orgName: string; orgCode: string; srcServiceType: string }[]
-  >([
-    { orgName: "신한은행", orgCode: "BANK1", srcServiceType: "ACCOUNT" },
-    { orgName: "국민은행", orgCode: "BANK2", srcServiceType: "ACCOUNT" },
-    { orgName: "하나은행", orgCode: "BANK3", srcServiceType: "ACCOUNT" },
-    { orgName: "우리카드", orgCode: "WOORI_CARD", srcServiceType: "CARD" },
-    { orgName: "신한카드", orgCode: "SHINHAN_CARD", srcServiceType: "CARD" },
-    { orgName: "하나카드", orgCode: "HANA_CARD", srcServiceType: "CARD" },
-  ]);
+  >([]);
 
   useEffect(() => {
     const fetchOrgData = async () => {
@@ -53,6 +47,7 @@ const EditableTable: React.FC = () => {
       orgName: "",
       orgCode: "",
       srcServiceType: "",
+      suggestionOrgId: null, // suggestionOrgId 초기값 추가
       displayOrder: null,
     };
     setDataSource([...dataSource, newData]);
@@ -86,6 +81,7 @@ const EditableTable: React.FC = () => {
       newDataSource[index].orgName = selectedOrg.orgName;
       newDataSource[index].orgCode = selectedOrg.orgCode;
       newDataSource[index].srcServiceType = selectedOrg.srcServiceType;
+      // suggestionOrgId는 자동으로 설정되므로 변경하지 않음
     }
     setDataSource(newDataSource);
     form.setFieldsValue({ table: newDataSource });
@@ -140,10 +136,25 @@ const EditableTable: React.FC = () => {
       ),
     },
     {
+      title: "SuggestionOrgId",
+      dataIndex: "suggestionOrgId",
+      render: (_: any, record: DataType, index: number) => (
+        <Form.Item
+          name={["table", index, "suggestionOrgId"]}
+          initialValue={record.suggestionOrgId}
+        >
+          <InputNumber />
+        </Form.Item>
+      ),
+    },
+    {
       title: "Display Order",
       dataIndex: "displayOrder",
       render: (_: any, record: DataType, index: number) => (
-        <Form.Item name={["table", index, "displayOrder"]}>
+        <Form.Item
+          name={["table", index, "displayOrder"]}
+          initialValue={record.displayOrder}
+        >
           <InputNumber />
         </Form.Item>
       ),
