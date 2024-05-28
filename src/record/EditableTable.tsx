@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Table,
   Input,
@@ -7,6 +7,7 @@ import {
   InputNumber,
   message,
   Popconfirm,
+  Select,
 } from "antd";
 import axios from "axios";
 
@@ -22,6 +23,23 @@ const EditableTable: React.FC = () => {
   const [form] = Form.useForm();
   const [dataSource, setDataSource] = useState<DataType[]>([]);
   const [count, setCount] = useState(0);
+  const [orgOptions, setOrgOptions] = useState<
+    { orgName: string; orgCode: string }[]
+  >([]);
+
+  useEffect(() => {
+    // 외부 API에서 orgName과 orgCode 데이터를 가져오는 함수
+    const fetchOrgData = async () => {
+      try {
+        const response = await axios.get("/api/v1/org_data"); // 예제 API 엔드포인트
+        setOrgOptions(response.data);
+      } catch (error) {
+        console.error("Failed to fetch org data:", error);
+      }
+    };
+
+    fetchOrgData();
+  }, []);
 
   const handleAdd = () => {
     const newData: DataType = {
@@ -55,6 +73,17 @@ const EditableTable: React.FC = () => {
     }
   };
 
+  const handleOrgNameChange = (value: string, index: number) => {
+    const selectedOrg = orgOptions.find((option) => option.orgName === value);
+    const newDataSource = [...dataSource];
+    if (selectedOrg) {
+      newDataSource[index].orgName = selectedOrg.orgName;
+      newDataSource[index].orgCode = selectedOrg.orgCode;
+    }
+    setDataSource(newDataSource);
+    form.setFieldsValue({ table: newDataSource });
+  };
+
   const columns = [
     {
       title: "Org Name",
@@ -64,7 +93,18 @@ const EditableTable: React.FC = () => {
           name={["table", index, "orgName"]}
           rules={[{ required: true, message: "Org Name is required" }]}
         >
-          <Input />
+          <Select
+            showSearch
+            placeholder="Select an org"
+            optionFilterProp="children"
+            onChange={(value) => handleOrgNameChange(value, index)}
+          >
+            {orgOptions.map((option) => (
+              <Select.Option key={option.orgCode} value={option.orgName}>
+                {option.orgName}
+              </Select.Option>
+            ))}
+          </Select>
         </Form.Item>
       ),
     },
@@ -74,9 +114,9 @@ const EditableTable: React.FC = () => {
       render: (_: any, record: DataType, index: number) => (
         <Form.Item
           name={["table", index, "orgCode"]}
-          rules={[{ required: true, message: "Org Code is required" }]}
+          initialValue={record.orgCode}
         >
-          <Input />
+          <Input disabled />
         </Form.Item>
       ),
     },
