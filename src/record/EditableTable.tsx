@@ -71,7 +71,7 @@ const EditableTable: React.FC = () => {
         ...row,
         displayOrder: row.displayOrder === null ? undefined : row.displayOrder,
       }));
-      await axios.post("/api/v1/suggestion_org", formattedValues);
+      await axios.post("/api/v1/suggestion_orgs", formattedValues);
       message.success("Data submitted successfully");
     } catch (error) {
       console.error("Failed to submit data:", error);
