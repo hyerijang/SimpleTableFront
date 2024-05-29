@@ -2,10 +2,19 @@ import React, { useState } from "react";
 import { Table, Input, Button, Form, Popconfirm } from "antd";
 import axios from "axios";
 
+interface DataType {
+  id: string;
+  orgName: string;
+  orgCode: string;
+  srcServiceType: string;
+  suggestionOrgId: number;
+  displayOrder: number;
+}
+
 const EditableTable = () => {
   const [data, setData] = useState([
     {
-      id: 1,
+      id: "1",
       orgName: "Org1",
       orgCode: "001",
       srcServiceType: "Type1",
@@ -13,7 +22,7 @@ const EditableTable = () => {
       displayOrder: 1,
     },
     {
-      id: 2,
+      id: "2",
       orgName: "Org2",
       orgCode: "002",
       srcServiceType: "Type2",
@@ -25,14 +34,14 @@ const EditableTable = () => {
   const [editingKey, setEditingKey] = useState("");
   const [form] = Form.useForm();
 
-  const isEditing = (record) => record.id === editingKey;
+  const isEditing = (record: DataType) => record.id === editingKey;
 
-  const edit = (record) => {
+  const edit = (record: DataType) => {
     form.setFieldsValue({ ...record });
     setEditingKey(record.id);
   };
 
-  const save = async (id) => {
+  const save = async (id: String) => {
     try {
       const row = await form.validateFields();
       const newData = [...data];
@@ -59,7 +68,7 @@ const EditableTable = () => {
     form.resetFields();
   };
 
-  const deleteRecord = async (id) => {
+  const deleteRecord = async (id: String) => {
     try {
       await axios.delete(`api/v1/suggestion_orgs/${id}`);
       const newData = data.filter((item) => item.id !== id);
@@ -109,7 +118,7 @@ const EditableTable = () => {
     {
       title: "Action",
       dataIndex: "action",
-      render: (_, record) => {
+      render: (_: any, record: DataType) => {
         const editable = isEditing(record);
         return editable ? (
           <span>
@@ -136,7 +145,7 @@ const EditableTable = () => {
     {
       title: "Action2",
       dataIndex: "action2",
-      render: (_, record) => (
+      render: (_: any, record: DataType) => (
         <Popconfirm
           title="Sure to delete?"
           onConfirm={() => deleteRecord(record.id)}
@@ -155,7 +164,7 @@ const EditableTable = () => {
     }
     return {
       ...col,
-      onCell: (record) => ({
+      onCell: (record: DataType) => ({
         record,
         inputType:
           col.dataIndex === "suggestionOrgId" ||
@@ -178,6 +187,14 @@ const EditableTable = () => {
     index,
     children,
     ...restProps
+  }: {
+    editing: boolean;
+    dataIndex: string;
+    title: React.ReactNode;
+    inputType: "text" | "number";
+    record: DataType;
+    index: number;
+    children: React.ReactNode;
   }) => {
     return (
       <td {...restProps}>
