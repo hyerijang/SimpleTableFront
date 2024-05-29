@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Table, Input, Button, Form } from "antd";
+import { Table, Input, Button, Form, Popconfirm } from "antd";
 import axios from "axios";
 
 const EditableTable = () => {
@@ -43,7 +43,7 @@ const EditableTable = () => {
         newData.splice(index, 1, { ...item, ...row });
         setData(newData);
         setEditingKey("");
-        await axios.put(`api/v1/suggestion_org/${id}`, row);
+        await axios.put(`api/v1/suggestion_orgs/${id}`, row);
       } else {
         newData.push(row);
         setData(newData);
@@ -57,6 +57,16 @@ const EditableTable = () => {
   const cancel = () => {
     setEditingKey("");
     form.resetFields();
+  };
+
+  const deleteRecord = async (id) => {
+    try {
+      await axios.delete(`api/v1/suggestion_orgs/${id}`);
+      const newData = data.filter((item) => item.id !== id);
+      setData(newData);
+    } catch (err) {
+      console.log("Delete failed:", err);
+    }
   };
 
   const columns = [
@@ -106,12 +116,32 @@ const EditableTable = () => {
             <Button onClick={() => save(record.id)} style={{ marginRight: 8 }}>
               Save
             </Button>
-            <Button onClick={cancel}>Cancel</Button>
+            <Button onClick={cancel} style={{ marginRight: 8 }}>
+              Cancel
+            </Button>
+            <Popconfirm
+              title="Sure to delete?"
+              onConfirm={() => deleteRecord(record.id)}
+            >
+              <Button danger>Delete</Button>
+            </Popconfirm>
           </span>
         ) : (
-          <Button disabled={editingKey !== ""} onClick={() => edit(record)}>
-            Edit
-          </Button>
+          <span>
+            <Button
+              disabled={editingKey !== ""}
+              onClick={() => edit(record)}
+              style={{ marginRight: 8 }}
+            >
+              Edit
+            </Button>
+            <Popconfirm
+              title="Sure to delete?"
+              onConfirm={() => deleteRecord(record.id)}
+            >
+              <Button danger>Delete</Button>
+            </Popconfirm>
+          </span>
         );
       },
     },
