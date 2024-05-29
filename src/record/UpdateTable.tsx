@@ -1,6 +1,7 @@
 import React, { useState } from "react";
-import { Table, Input, Button, Form, Popconfirm, Select, Tag } from "antd";
+import { Table, Input, Button, Form, Popconfirm } from "antd";
 import axios from "axios";
+import TagWithColor from "./TagWithColor"; // TagWithColor 컴포넌트 추가
 
 interface DataType {
   id: string;
@@ -78,42 +79,6 @@ const EditableTable = () => {
     }
   };
 
-  const orgOptions = [
-    { orgCode: "001", orgName: "Org1" },
-    { orgCode: "002", orgName: "Org2" },
-    // Add more options as needed
-  ];
-
-  const handleOrgNameChange = (value: string, index: number) => {
-    // Handle org name change here
-  };
-
-  const hashString = (str: string) => {
-    let hash = 0;
-    for (let i = 0; i < str.length; i++) {
-      const char = str.charCodeAt(i);
-      hash = (hash << 5) - hash + char;
-      hash &= hash; // Convert to 32bit integer
-    }
-    return hash;
-  };
-
-  // srcServiceType 태그 색상
-  const getTagColor = (srcServiceType: string) => {
-    const colors = [
-      "blue",
-      "green",
-      "red",
-      "yellow",
-      "orange",
-      "purple",
-      "cyan",
-      "magenta",
-    ];
-    const index = Math.abs(hashString(srcServiceType)) % colors.length;
-    return colors[index];
-  };
-
   const columns = [
     {
       title: "ID",
@@ -126,61 +91,75 @@ const EditableTable = () => {
       dataIndex: "orgName",
       width: "15%",
       editable: true,
-      render: (_: any, record: DataType, index: number) => (
-        <Form.Item
-          name={["table", index, "orgName"]}
-          rules={[{ required: true, message: "Org Name is required" }]}
-        >
-          <Select
-            showSearch
-            placeholder="Select an org"
-            optionFilterProp="children"
-            onChange={(value) => handleOrgNameChange(value, index)}
-          >
-            {orgOptions.map((option) => (
-              <Select.Option key={option.orgCode} value={option.orgName}>
-                {option.orgName}
-              </Select.Option>
-            ))}
-          </Select>
-        </Form.Item>
-      ),
     },
     {
       title: "Org Code",
       dataIndex: "orgCode",
       width: "15%",
       editable: true,
-      render: (_: any, record: DataType, index: number) => (
-        <Form.Item
-          name={["table", index, "orgCode"]}
-          initialValue={record.orgCode}
-        >
-          <Input disabled />
-        </Form.Item>
-      ),
     },
     {
       title: "Src Service Type",
       dataIndex: "srcServiceType",
       width: "15%",
       editable: true,
-      render: (_: any, record: DataType, index: number) => (
-        <Form.Item
-          name={["table", index, "srcServiceType"]}
-          initialValue={record.srcServiceType}
-        >
+      render: (_: any, record: DataType) => (
+        <TagWithColor srcServiceType={record.srcServiceType} />
+      ), // TagWithColor 컴포넌트 사용
+    },
+    {
+      title: "Suggestion Org ID",
+      dataIndex: "suggestionOrgId",
+      width: "15%",
+      editable: true,
+    },
+    {
+      title: "Display Order",
+      dataIndex: "displayOrder",
+      width: "15%",
+      editable: true,
+    },
+    {
+      title: "Action",
+      dataIndex: "action",
+      render: (_: any, record: DataType) => {
+        const editable = isEditing(record);
+        return editable ? (
           <span>
-            {record.srcServiceType && (
-              <Tag color={getTagColor(record.srcServiceType)}>
-                {record.srcServiceType}
-              </Tag>
-            )}
+            <Button onClick={() => save(record.id)} style={{ marginRight: 8 }}>
+              Save
+            </Button>
+            <Button onClick={cancel} style={{ marginRight: 8 }}>
+              Cancel
+            </Button>
           </span>
-        </Form.Item>
+        ) : (
+          <span>
+            <Button
+              disabled={editingKey !== ""}
+              onClick={() => edit(record)}
+              style={{ marginRight: 8 }}
+            >
+              Edit
+            </Button>
+          </span>
+        );
+      },
+    },
+    {
+      title: "Action2",
+      dataIndex: "action2",
+      render: (_: any, record: DataType) => (
+        <Popconfirm
+          title="Sure to delete?"
+          onConfirm={() => deleteRecord(record.id)}
+        >
+          <Button type="primary" danger>
+            Delete
+          </Button>
+        </Popconfirm>
       ),
     },
-    // Add more columns as needed
   ];
 
   const mergedColumns = columns.map((col) => {

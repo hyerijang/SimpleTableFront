@@ -8,9 +8,9 @@ import {
   message,
   Popconfirm,
   Select,
-  Tag, // Tag 추가
 } from "antd";
 import axios from "axios";
+import TagWithColor from "./TagWithColor";
 
 interface DataType {
   key: number;
@@ -109,31 +109,6 @@ const EditableTable: React.FC = () => {
     }
     return Promise.resolve();
   };
-  const hashString = (str: string) => {
-    let hash = 0;
-    for (let i = 0; i < str.length; i++) {
-      const char = str.charCodeAt(i);
-      hash = (hash << 5) - hash + char;
-      hash &= hash; // Convert to 32bit integer
-    }
-    return hash;
-  };
-
-  // srcServiceType 태그 색상
-  const getTagColor = (srcServiceType: string) => {
-    const colors = [
-      "blue",
-      "green",
-      "red",
-      "yellow",
-      "orange",
-      "purple",
-      "cyan",
-      "magenta",
-    ];
-    const index = Math.abs(hashString(srcServiceType)) % colors.length;
-    return colors[index];
-  };
 
   const columns = [
     {
@@ -175,18 +150,7 @@ const EditableTable: React.FC = () => {
       title: "Src Service Type",
       dataIndex: "srcServiceType",
       render: (_: any, record: DataType, index: number) => (
-        <Form.Item
-          name={["table", index, "srcServiceType"]}
-          initialValue={record.srcServiceType}
-        >
-          <span>
-            {record.srcServiceType && (
-              <Tag color={getTagColor(record.srcServiceType)}>
-                {record.srcServiceType}
-              </Tag>
-            )}
-          </span>
-        </Form.Item>
+        <TagWithColor srcServiceType={record.srcServiceType} />
       ),
     },
     {
