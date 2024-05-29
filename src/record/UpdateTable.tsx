@@ -119,12 +119,6 @@ const EditableTable = () => {
             <Button onClick={cancel} style={{ marginRight: 8 }}>
               Cancel
             </Button>
-            <Popconfirm
-              title="Sure to delete?"
-              onConfirm={() => deleteRecord(record.id)}
-            >
-              <Button danger>Delete</Button>
-            </Popconfirm>
           </span>
         ) : (
           <span>
@@ -135,15 +129,23 @@ const EditableTable = () => {
             >
               Edit
             </Button>
-            <Popconfirm
-              title="Sure to delete?"
-              onConfirm={() => deleteRecord(record.id)}
-            >
-              <Button danger>Delete</Button>
-            </Popconfirm>
           </span>
         );
       },
+    },
+    {
+      title: "Action2",
+      dataIndex: "action2",
+      render: (_, record) => (
+        <Popconfirm
+          title="Sure to delete?"
+          onConfirm={() => deleteRecord(record.id)}
+        >
+          <Button type="primary" danger>
+            Delete
+          </Button>
+        </Popconfirm>
+      ),
     },
   ];
 
@@ -211,7 +213,7 @@ const EditableTable = () => {
         dataSource={data}
         columns={mergedColumns}
         rowClassName="editable-row"
-        pagination={false}
+        pagination={{ pageSize: 10, position: ["bottomCenter"] }}
       />
     </Form>
   );
