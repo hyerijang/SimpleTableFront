@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import { Table, Input, Button, Form, Popconfirm } from "antd";
+import { Table, Input, Button, Form, Popconfirm, Select } from "antd";
 import axios from "axios";
-import TagWithColor from "./TagWithColor"; // TagWithColor 컴포넌트 추가
+import TagWithColor from "./TagWithColor";
 
 interface DataType {
   id: string;
@@ -213,7 +213,23 @@ const EditableTable = () => {
               },
             ]}
           >
-            <Input type={inputType} />
+            {dataIndex === "orgName" ? (
+              <Select
+                showSearch
+                placeholder="Select an org"
+                optionFilterProp="children"
+                // onChange={(value) => handleOrgNameChange(value, index)}
+              >
+                <Select.Option>opt1</Select.Option>
+                <Select.Option>opt2</Select.Option>
+              </Select>
+            ) : dataIndex === "orgCode" ? (
+              <Input disabled />
+            ) : dataIndex === "srcServiceType" ? (
+              <TagWithColor srcServiceType={record.srcServiceType} />
+            ) : (
+              children
+            )}
           </Form.Item>
         ) : (
           children
